@@ -7,5 +7,7 @@ package vip.aquan.redisdemo.util;
  */
 public class Constants {
 
-    public static final String COORDINATE_DATA_KEY = "coordinate:data";
+    public static final String COORDINATE_DATA_LIST_KEY = "coordinate:data:list";
+    public static final String COORDINATE_DATA_HASH_KEY = "coordinate:data:hash";
+    public static final String COORDINATE_GEO_DATA_SET_KEY = "coordinate:geo:data:set";
 }

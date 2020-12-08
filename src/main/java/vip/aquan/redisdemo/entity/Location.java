@@ -11,7 +11,16 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class Location {
-    private double x;//经度
-    private double y;//纬度
-    private String xy;//经纬度
+    /**编号*/
+    private String id;
+    /**地址*/
+    private String address;
+    /**电话*/
+    private String phone;
+    /**经度*/
+    private double x;
+    /**纬度*/
+    private double y;
+    /**经纬度(格式x,y)*/
+    private String xy;
 }

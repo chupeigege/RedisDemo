@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -99,6 +100,28 @@ public class RedisTemplateUtil {
         return redisTemplate.opsForList().range(key, start, end);
     }
 
+    /**
+     * put redis:hash类型 批量插入
+     *
+     * @param key key
+     * @param map Map<hk,hv>
+     */
+    public void putAllHash(String key, Map map) {
+        BoundHashOperations<String, String, Object> boundHashOps = redisTemplate.boundHashOps(key);
+        boundHashOps.putAll(map);
+    }
+
+    /**
+     * get redis:hash类型 批量获取
+     *
+     * @param key key
+     * @param hkList list<hk>
+     */
+    public List<Object> getHashBatch(String key,List<String> hkList) {
+        BoundHashOperations<String, String, Object> boundHashOps = redisTemplate.boundHashOps(key);
+        return boundHashOps.multiGet(hkList);
+    }
+
     public Object get(String key) {
         return stringRedisTemplate.opsForValue().get(key);
     }
@@ -174,7 +197,7 @@ public class RedisTemplateUtil {
      * @param circle 面积对象 (坐标,范围) new Circle(new Point(x,y), new Distance(5, Metrics.KILOMETERS)) 半径5km的范围
      * @return GeoResults
      */
-    public List<Point> nearByXY(String key, Circle circle) {
+    public GeoResults<RedisGeoCommands.GeoLocation<String>> nearByXY(String key, Circle circle) {
         /*
          * 使用 GeoRadiusCommandArgs 封装 GEORADIUS 的一些可选命令参数
          * includeDistance 包含距离
@@ -183,14 +206,7 @@ public class RedisTemplateUtil {
          * limit 限定返回的记录数
          */
         RedisGeoCommands.GeoRadiusCommandArgs args = RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs().includeDistance().includeCoordinates().sortAscending();
-        GeoResults<RedisGeoCommands.GeoLocation<String>> geoResults = redisTemplate.opsForGeo().radius(key, circle, args);
-        List<GeoResult<RedisGeoCommands.GeoLocation<String>>> resultsContent = geoResults.getContent();
-        List<Point> pointList = new ArrayList<>();
-        for (GeoResult<RedisGeoCommands.GeoLocation<String>> geoLocationGeoResult : resultsContent) {
-            RedisGeoCommands.GeoLocation<String> geoLocation = geoLocationGeoResult.getContent();
-            pointList.add(geoLocation.getPoint());
-        }
-        return pointList;
+        return (GeoResults<RedisGeoCommands.GeoLocation<String>>) redisTemplate.opsForGeo().radius(key, circle, args);
     }
 
 
